@@ -8,8 +8,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 uvloop = "^0.17.0"
-yaml8 = "^0.1.2"
 prettytable = "^3.8.0"
+ruamel-yaml = "^0.17.32"
 
 [tool.poetry.scripts]
 stelar = "stelar.application:main"

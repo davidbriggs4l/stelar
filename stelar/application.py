@@ -1,20 +1,25 @@
 import asyncio
 import uvloop
+import os
 import argparse
-
-def start_process():
-    print("Staring process found in .stelar.yaml")
+from settings import Settings
 
 
-def monitor(data):
+async def start_process(loop: uvloop.Loop):
+    settings = Settings.read(loop=loop)
+    print(settings)
+    print("Staring process found in stelar.yaml")
+
+
+def monitor(loop: uvloop.Loop, data):
     print(f"monitor {data}")
 
 
-def list(all):
+def list(loop: uvloop.Loop, all):
     print(f"listing with all as {all}")
 
 
-def stop(id):
+def stop(loop: uvloop.Loop, id):
     print(f"stopping {id}")
 
 
@@ -37,18 +42,32 @@ def main():
     stopProc.add_argument(
         "--process", metavar="<process>", help="The process to store", type=str, required=True)
     stopProc.set_defaults(func=stop)
+
     ###
-    args = parser.parse_args()
-    # args.func(*args)
-    subcommand = args.subcommand
-    if subcommand == "monitor":
-        args.func(args.data)
-    elif subcommand == "list":
-        args.func(args.all)
-    elif subcommand == "stop":
-        args.func(args.process)
-    elif subcommand == None:
-        start_process()
-    else:
-        pass
-    return 0
+    try:
+        args = parser.parse_args()
+
+        loop = uvloop.new_event_loop()
+        asyncio.set_event_loop(loop=loop)
+        subcommand = args.subcommand
+        if subcommand == "monitor":
+            loop.create_task(args.func(args.data))
+        elif subcommand == "list":
+            args.func(args.all)
+        elif subcommand == "stop":
+            args.func(args.process)
+        elif subcommand == None:
+            loop.create_task(start_process(loop=loop))
+        else:
+            NotImplemented
+        loop.run_forever()
+    except KeyboardInterrupt:
+        exit(0)
+    except SystemExit:
+        exit(0)
+    finally:
+        loop.close()
+
+
+if __name__ == "__main__":
+    main()
