@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "stelar"
+version = "0.1.0"
+description = ""
+authors = ["david00154 <davidbriggs00154@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+uvloop = "^0.17.0"
+yaml8 = "^0.1.2"
+prettytable = "^3.8.0"
+
+[tool.poetry.scripts]
+stelar = "stelar.application:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,6 @@
+{
+  "[python]": {
+    "edtor.defaultFormatter": "ms-python.autopep8"
+  },
+  "python.formatting.provider": "none"
+}
