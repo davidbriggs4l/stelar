@@ -16,10 +16,10 @@ Coming soon
 
 ## Todo
 
-[] Process restart on fail
-[] Environment Variables
-[] Log management
-[] Context awareness (Workspaces)
-[] Web Ui (Process Visual Monitoring)
-[] Global daemon
+[] Process restart on fail  
+[] Environment Variables  
+[] Log management  
+[] Context awareness (Workspaces)  
+[] Web Ui (Process Visual Monitoring)  
+[] Global daemon  
 [] Alerts and notifications
