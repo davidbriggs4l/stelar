@@ -15,20 +15,18 @@ async def start_process():
         for p in processes:
             print(f"Name: {p.data.name}")
             print(f"Command: {p.data.cmd}")
-            command = [*sys.orig_argv, "monitor", "--data", "woop"]
-            print(command)
+            # command = [*sys.orig_argv, "monitor", "--data", "woop"]
+            command = [*sys.orig_argv, "-h"]
             child = await asyncio.create_subprocess_exec(
                 *command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-            print(f"Manager process started with {child.pid}")
-            stdout, stderr = await child.communicate()
-            print(f"[{p.data.name!r}] exited with {child.returncode}")
-            if stdout:
-                logging.debug(f"{stdout.decode()}")
-            if stderr:
-                logging.error(f"{stderr.decode()}")
+            print(f"Manager process started with PID: {child.pid}")
+            # stdout, stderr = await child.communicate()
+            rcode = await child.wait()
+            logging.warn(f"[{p.data.name!r}] exited with {rcode}")
 
 
-def monitor(data):
+async def monitor(data):
+    await asyncio.sleep(10)
     print(f"monitor {data}")
 
 
