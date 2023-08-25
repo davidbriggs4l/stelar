@@ -1,0 +1,6 @@
+process:
+  - name: proc-1
+    cmd: ./env.sh
+    args:
+      - Foo
+      - Bar
