@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo $FOO;
+echo $@;
 
 sleep 10;
 

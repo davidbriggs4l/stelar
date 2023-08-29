@@ -1,33 +1,42 @@
 import logging
 import atexit
 import asyncio
-import os
+from . import os
 import argparse
 import sys
-from .settings import Settings
+from .settings import Settings, start
+from .monitor.process import Process
+from .monitor import file
+import json
 
 
 async def start_process():
     settings = Settings.read()
-    if settings is not None:
-        processes = settings.list_procs()
-        print("Staring process found in stelar.yaml")
-        for p in processes:
-            print(f"Name: {p.data.name}")
-            print(f"Command: {p.data.cmd}")
-            # command = [*sys.orig_argv, "monitor", "--data", "woop"]
-            command = [*sys.orig_argv, "-h"]
-            child = await asyncio.create_subprocess_exec(
-                *command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-            print(f"Manager process started with PID: {child.pid}")
-            # stdout, stderr = await child.communicate()
-            rcode = await child.wait()
-            logging.warn(f"[{p.data.name!r}] exited with {rcode}")
+    processes = settings.list_procs()
+    print("Staring process found in stelar.yaml")
+    for p in processes:
+        data = p.serialize()
+        print(f"Name: {p.data.name}")
+        print(f"Command: {p.data.cmd}")
+        command = [*sys.orig_argv, "monitor", "--data", data]
+        child = await asyncio.create_subprocess_exec(
+            *command, stdout=sys.stdout, stderr=sys.stderr)
+        print(f"Manager process started with PID: {child.pid}")
+        # stdout, stderr = await child.communicate()
+        rcode = await child.wait()
+        print(f"[{p.data.name!r}] exited with {rcode}")
+
+
+def sigterm_handler(name):
+    print("[debug]: SIGTERM arrived!")
+    process = file.read(file.path_from_name(name))
+    os.kill(process.data.child_pid)
 
 
 async def monitor(data):
-    await asyncio.sleep(10)
-    print(f"monitor {data}")
+    process = Process.deserialize(data)
+    atexit.register(sigterm_handler, process.data.name)
+    await start(process=process)
 
 
 def list(all):
@@ -64,7 +73,6 @@ def main():
 
         subcommand = args.subcommand
         if subcommand == "monitor":
-            print("fop")
             asyncio.run(args.func(args.data))
         elif subcommand == "list":
             args.func(args.all)
@@ -78,6 +86,8 @@ def main():
     #     exit()
     # except SystemExit:
     #     exit(0)
+    except Exception as e:
+        logging.error(e)
     finally:
         exit()
 
